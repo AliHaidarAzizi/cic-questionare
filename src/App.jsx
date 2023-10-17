@@ -19,7 +19,7 @@ function App() {
         <div className='bg-slate-200 min-[700px]:w-2/3 md:box-content flex flex-col items-center justify-center gap-3 h-[700px] p-8 rounded-3xl text-center shadow-md'>
             {!showQuestionnaire ? (
               <div className='flex flex-col gap-5'>
-                <h1 className="text-3xl font-bold"> Welcome to CIC's Personality Test! </h1>
+                <h1 className="text-3xl font-bold"> Am I a good preschool teacher?</h1>
                 <h3>Get to know how good are you with children</h3>
                 <div>
                   <button onClick={handleClick} className=' max-[300px]: bg-purple-600 text-white py-2 px-4 rounded-lg'>

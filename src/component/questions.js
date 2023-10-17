@@ -329,7 +329,9 @@ export const questions = [
       "Memperkenalkan pengiraan gandaan dari seawal umur kanak-kanak.",
       "Menonton video pendidikan tentang pengiraan.",
       "Memberikan kuiz bertempoh untuk menilai kemahiran pengiraan.",
+
     ],
     scores: [3, 3, 1, 3, 3, 1, 1],
+    multipleAnswers: true,
   },
 ];
