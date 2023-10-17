@@ -12,7 +12,9 @@ function Questionnaire({ question, language }) {
   const [Name, setName] = useState("");
   const [totalScore, setTotalScore] = useState(0);
   const [isSubmitted, setIsSubmitted] =useState(false)
-  const [selectedOptions, setSelectedOptions] = useState(Array(questions[currentQuestionIndex].options.length).fill(false))
+  const [selectedOptions, setSelectedOptions] = useState(questions[currentQuestionIndex] 
+    ? Array(questions[currentQuestionIndex].options.length).fill(false)
+    : [])
 
   const handleAnswer = (index) => {
     const newSelectedOptions = [...selectedOptions];
@@ -33,6 +35,14 @@ function Questionnaire({ question, language }) {
 
     }
   }
+
+  const submitAnswers = () => {
+    const newTotalScore = selectedOptions.reduce((total, isSelected, i) => total + (isSelected ? questions[currentQuestionIndex].scores[i] : 0), 0);
+    setTotalScore(totalScore + newTotalScore);
+    setAnswers([...answers, ...selectedOptions]);
+    setCurrentQuestionIndex(currentQuestionIndex + 1);
+    setSelectedOptions(Array(questions[currentQuestionIndex].options.length).fill(false));
+  };
 
   const handleEmailInput = (event) => {
     setEmail(event.target.value);
@@ -127,8 +137,11 @@ function Questionnaire({ question, language }) {
     <div className='flex flex-col gap-2'>
       <h3>{currentQuestionIndex+1}/{questions.length}</h3>
         <h2 className='text-3xl font-bold py-3 mb-4'>{language === 'en' ? questions[currentQuestionIndex].question : questions[currentQuestionIndex].translation}</h2>
+        <div className=' grid gap-3 items-center justify-center'>
+
         {questions[currentQuestionIndex].options.map((option, index) => (
           questions[currentQuestionIndex].multipleAnswers ? (
+            
             <div key={index} className={`
             max-[300px]: bg-purple-600
             text-white
@@ -136,31 +149,47 @@ function Questionnaire({ question, language }) {
             py-2 px-4 
             rounded-lg 
             ${selectedOptions[index] ? 'bg-purple-900' : ''}
-          `} 
-          onClick={() => handleAnswer(index)}
-          >
+            `} 
+            onClick={() => handleAnswer(index)}
+            >
               <label>
                 {language === 'en' ? option : questions[currentQuestionIndex].translationOptions[index]}
               </label>
             </div>
             
-          ) : (
+            
+            ) : (
           
-          <button 
-          className='
-            max-[300px]: bg-purple-600
-            text-white
-            shadow-lg
-            py-2 px-4 
-            hover:bg-purple-900
-            rounded-lg' 
-      
-          key={index} onClick={() => handleAnswer(questions[currentQuestionIndex].scores[index])}>
+              <button 
+              className='
+              max-[300px]: bg-purple-600
+              text-white
+              shadow-lg
+              py-2 px-4 
+              hover:bg-purple-900
+              rounded-lg' 
+              
+              key={index} onClick={() => handleAnswer(questions[currentQuestionIndex].scores[index])}>
             {language === 'en' ? option : questions[currentQuestionIndex].translationOptions[index]}
           </button>
           ))
-        )}
+          )}
+          </div>
+        
+        {questions[currentQuestionIndex].multipleAnswers == true ? <button 
+            className='
+              max-[300px]: bg-red-500
+              text-white
+              shadow-lg
+              py-2 px-4 
+              hover:bg-red-900
+              rounded-lg' 
+            onClick={submitAnswers}>
+              Submit Answers
+            </button> :null}
     </div>
+    
+    
   );
 }
 
