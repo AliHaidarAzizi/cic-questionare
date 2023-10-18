@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { questions } from './questions';
 import axios from 'axios';
 import imageFront from '../assets/img1.jpeg'
@@ -15,7 +15,7 @@ function Questionnaire({ question, language }) {
   const [multipleScore, setMultipleScore] = useState(0);
 
   const handleAnswer = (index) => {
-    setSelectedOptions(selectedOptions);
+    // setSelectedOptions(selectedOptions);
     // setAnswers([...answers, questions[currentQuestionIndex].scores[index]]);
     questions[currentQuestionIndex].multipleAnswers === true ?
     setTotalScore((prev)=> prev + multipleScore)
@@ -151,22 +151,22 @@ const {handleAnswer, currentQuestionIndex,multipleScore, setMultipleScore, index
 
  return (
   <button 
-              className='
-              max-[300px]: bg-purple-600
+              className={`
+              max-[300px]: ${pressed ? "bg-purple-800" : "bg-purple-600"}
               text-white
               shadow-lg
               py-2 px-4 
               hover:bg-purple-900
-              rounded-lg'
+              rounded-lg`}
               
               key={index} onClick={() => {
-                console.log(questions[currentQuestionIndex].multipleAnswers)
+                
                 if (questions[currentQuestionIndex].multipleAnswers === true ) {
-                  if (!setPressed) {
+                  if (!pressed) {
                     setPressed(true)
                     setMultipleScore((prev)=>prev + questions[currentQuestionIndex].scores[index])
                   }
-                  if (setPressed) {
+                  if (pressed) {
                     setPressed(false)
                     setMultipleScore((prev)=>prev - questions[currentQuestionIndex].scores[index])
                   }
