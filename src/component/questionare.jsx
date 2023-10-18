@@ -7,68 +7,42 @@ import imageBack from '../assets/img2.jpeg'
 
 function Questionnaire({ question, language }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
+  // const [answers, setAnswers] = useState([]);
   const [email, setEmail] = useState("");
   const [Name, setName] = useState("");
   const [totalScore, setTotalScore] = useState(0);
-  const [isSubmitted, setIsSubmitted] =useState(false)
-  const [selectedOptions, setSelectedOptions] = useState(questions[currentQuestionIndex] 
-    ? Array(questions[currentQuestionIndex].options.length).fill(false)
-    : [])
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [multipleScore, setMultipleScore] = useState(0);
 
   const handleAnswer = (index) => {
-    const newSelectedOptions = [...selectedOptions];
-    newSelectedOptions[index] = !newSelectedOptions[index];
-    setSelectedOptions(newSelectedOptions)
-    if (questions[currentQuestionIndex].multipleAnswers) {
-      const newAnswers = [...answers];
-      newAnswers[index] = !newAnswers[index];
-      setAnswers(newAnswers);
-
-      const newTotalScore = newAnswers.reduce((total, answer, i) => total + (answer ? questions[currentQuestionIndex].scores[i] : 0), 0);
-    setTotalScore(newTotalScore)
-
-    } else {
-      setAnswers([...answers, questions[currentQuestionIndex].scores[index]]);
-      setTotalScore(totalScore + questions[currentQuestionIndex].scores[index]);
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-
-    }
-  }
-
-  const submitAnswers = () => {
-    const newTotalScore = selectedOptions.reduce((total, isSelected, i) => total + (isSelected ? questions[currentQuestionIndex].scores[i] : 0), 0);
-    setTotalScore(totalScore + newTotalScore);
-    setAnswers([...answers, ...selectedOptions]);
+    setSelectedOptions(selectedOptions);
+    // setAnswers([...answers, questions[currentQuestionIndex].scores[index]]);
+    questions[currentQuestionIndex].multipleAnswers === true ?
+    setTotalScore((prev)=> prev + multipleScore)
+    : setTotalScore((prev)=> prev + questions[currentQuestionIndex].scores[index]);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
-    setSelectedOptions(Array(questions[currentQuestionIndex].options.length).fill(false));
+    setMultipleScore(0)
   };
 
-  const handleEmailInput = (event) => {
-    setEmail(event.target.value);
-  };
-  const handleNameInput = (event) => {
-    setName(event.target.value);
-  };
+  const handleEmailInput = (event) =>  setEmail(event.target.value);
+
+  const handleNameInput = (event) => setName(event.target.value);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     const Name = e.target[0].value;
     const gender = e.target[1].value;
     const doB = e.target[2].value;
     const email = e.target[3].value;
     const reqBody = { Name, gender, doB, email, totalScore };
-    console.log(reqBody)
     
     try {
-      await axios.post("http://localhost:3000/submission", reqBody)
-      setIsSubmitted(true)
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}submission`, reqBody);
+      setIsSubmitted(true);
     } catch (error) {
       console.error(error);
-      alert(error.response.data.message)
-      
-    }
-  };
+      alert(error.response.data.message);
+    }}
 
 
   const getScoreInterpretation = (score) => {
@@ -139,58 +113,69 @@ function Questionnaire({ question, language }) {
         <h2 className='text-3xl font-bold py-3 mb-4'>{language === 'en' ? questions[currentQuestionIndex].question : questions[currentQuestionIndex].translation}</h2>
         <div className=' grid gap-3 items-center justify-center'>
 
-        {questions[currentQuestionIndex].options.map((option, index) => (
-          questions[currentQuestionIndex].multipleAnswers ? (
-            
-            <div key={index} className={`
-            max-[300px]: bg-purple-600
+        {questions[currentQuestionIndex].options.map((option, index) => {
+          
+          return  (
+              <AnsButton handleAnswer={handleAnswer} currentQuestionIndex={currentQuestionIndex} multipleScore={multipleScore} setMultipleScore={setMultipleScore} index={index} >
+            {language === 'en' ? option : questions[currentQuestionIndex].translationOptions[index]}
+          </AnsButton>
+          )})}
+
+          { questions[currentQuestionIndex].multipleAnswers === true  &&
+            <button className='
+            max-[300px]: bg-red-600
             text-white
             shadow-lg
             py-2 px-4 
-            rounded-lg 
-            ${selectedOptions[index] ? 'bg-purple-900' : ''}
-            `} 
-            onClick={() => handleAnswer(index)}
-            >
-              <label>
-                {language === 'en' ? option : questions[currentQuestionIndex].translationOptions[index]}
-              </label>
-            </div>
-            
-            
-            ) : (
-          
-              <button 
-              className='
-              max-[300px]: bg-purple-600
-              text-white
-              shadow-lg
-              py-2 px-4 
-              hover:bg-purple-900
-              rounded-lg' 
-              
-              key={index} onClick={() => handleAnswer(questions[currentQuestionIndex].scores[index])}>
-            {language === 'en' ? option : questions[currentQuestionIndex].translationOptions[index]}
-          </button>
-          ))
-          )}
+            hover:bg-red-900
+            rounded-lg' 
+            onClick={()=>{
+              handleAnswer(0)
+            }}
+            >Submit</button>
+          }
           </div>
         
-        {questions[currentQuestionIndex].multipleAnswers == true ? <button 
-            className='
-              max-[300px]: bg-red-500
-              text-white
-              shadow-lg
-              py-2 px-4 
-              hover:bg-red-900
-              rounded-lg' 
-            onClick={submitAnswers}>
-              Submit Answers
-            </button> :null}
     </div>
     
     
   );
 }
 
+
 export default Questionnaire;
+
+function AnsButton(props) {
+const {handleAnswer, currentQuestionIndex,multipleScore, setMultipleScore, index, children} = props
+ const [pressed, setPressed] = useState(false)
+
+ return (
+  <button 
+              className='
+              max-[300px]: bg-purple-600
+              text-white
+              shadow-lg
+              py-2 px-4 
+              hover:bg-purple-900
+              rounded-lg'
+              
+              key={index} onClick={() => {
+                console.log(questions[currentQuestionIndex].multipleAnswers)
+                if (questions[currentQuestionIndex].multipleAnswers === true ) {
+                  if (!setPressed) {
+                    setPressed(true)
+                    setMultipleScore((prev)=>prev + questions[currentQuestionIndex].scores[index])
+                  }
+                  if (setPressed) {
+                    setPressed(false)
+                    setMultipleScore((prev)=>prev - questions[currentQuestionIndex].scores[index])
+                  }
+                  return
+                } 
+                handleAnswer(index)
+                }}>
+                {children}
+          </button>
+ )
+
+}
